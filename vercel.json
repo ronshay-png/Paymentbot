@@ -1,13 +1,8 @@
 {
   "version": 2,
-  "functions": {
-    "api/webhook-stripe.js": {
-      "memory": 256
-    }
-  },
   "routes": [
-    { "src": "/bot", "dest": "/api/bot.js" },
-    { "src": "/webhook/paypal", "dest": "/api/webhook-paypal.js" },
-    { "src": "/webhook/stripe", "dest": "/api/webhook-stripe.js" }
+    { "src": "/bot", "dest": "/bot.js" },
+    { "src": "/webhook/paypal", "dest": "/webhook-paypal.js" },
+    { "src": "/webhook/stripe", "dest": "/webhook-stripe.js" }
   ]
 }
