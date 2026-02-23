@@ -1,33 +1,29 @@
-import { verifyPayPalWebhook } from '../paypal.js';
-import { handleSuccessfulPayment } from '../payments.js';
+Bot · JS
+Copy
+
+const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+
+async function sendMessage(chatId, text, extra = {}) {
+  await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ chat_id: chatId, text, ...extra }),
+  });
+}
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).send('Method Not Allowed');
+  if (req.method !== 'POST') return res.status(200).send('Bot is running ✅');
 
-  try {
-    const isValid = await verifyPayPalWebhook(req);
-    if (!isValid) return res.status(400).json({ error: 'Invalid signature' });
+  const update = req.body;
 
-    const event = req.body;
+  if (update.message) {
+    const { chat, text, from } = update.message;
+    const chatId = chat.id;
 
-    if (event.event_type === 'PAYMENT.SALE.COMPLETED') {
-      const sale = event.resource;
-      const telegramId = sale.custom;
-      const amount = sale.amount.total;
-      const currency = sale.amount.currency;
-
-      await handleSuccessfulPayment({
-        telegramId,
-        amount,
-        currency,
-        method: 'PayPal',
-        transactionId: sale.id,
-      });
+    if (text === '/start' || text === '/pay') {
+      await sendMessage(chatId, `👋 שלום ${from.first_name}!\n\nהבוט עובד! 🎉`);
     }
-
-    res.status(200).json({ ok: true });
-  } catch (err) {
-    console.error('PayPal webhook error:', err);
-    res.status(500).json({ error: 'Internal server error' });
   }
+
+  res.status(200).json({ ok: true });
 }
